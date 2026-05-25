@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Module 4 Solution — Hello & Goodbye</title>
+  <style>
+    /* ──────────────────────────────────────────────
+       Aesthetic: editorial / terminal-inspired
+       Font: JetBrains Mono (code) + Playfair Display
+    ────────────────────────────────────────────── */
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Playfair+Display:wght@700;900&display=swap');
+
+    :root {
+      --bg: #0d0f14;
+      --surface: #151820;
+      --border: #252a36;
+      --hello-color: #4fffb0;
+      --bye-color: #ff6b6b;
+      --muted: #5a6375;
+      --text: #d4dae8;
+      --accent: #7c8cff;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--hello-color) 0%, var(--accent) 60%, var(--bye-color) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    header p {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .console-wrap {
+      width: 100%;
+      max-width: 680px;
+    }
+
+    .console-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 10px 10px 0 0;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot.r { background: #ff5f57; }
+    .dot.y { background: #ffbd2e; }
+    .dot.g { background: #28c840; }
+
+    .console-title {
+      margin-left: 8px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    .console-body {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0 0 10px 10px;
+      padding: 24px 28px;
+      min-height: 320px;
+    }
+
+    .console-body .log-line {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+      animation: fadeIn 0.3s ease both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-6px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .log-line .prompt {
+      color: var(--muted);
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .log-line.hello .message { color: var(--hello-color); }
+    .log-line.goodbye .message { color: var(--bye-color); }
+
+    .legend {
+      display: flex;
+      gap: 24px;
+      margin-top: 28px;
+      justify-content: center;
+      font-size: 0.72rem;
+      letter-spacing: 1px;
+    }
+
+    .legend-item { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .legend-dot.h { background: var(--hello-color); }
+    .legend-dot.b { background: var(--bye-color); }
+
+    .note {
+      margin-top: 40px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.72rem;
+      letter-spacing: 1px;
+    }
+    .note span { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Module 4 Solution</h1>
+    <p>Coursera · HTML CSS &amp; JavaScript for Web Developers</p>
+  </header>
+
+  <div class="console-wrap">
+    <div class="console-bar">
+      <span class="dot r"></span>
+      <span class="dot y"></span>
+      <span class="dot g"></span>
+      <span class="console-title">console output</span>
+    </div>
+    <div class="console-body" id="output">
+      <!-- Log lines injected by JS -->
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot h"></span> Hello — non-J name</div>
+    <div class="legend-item"><span class="legend-dot b"></span> Goodbye — J/j name</div>
+  </div>
+
+  <p class="note">Open <span>DevTools → Console</span> to see the original console.log output</p>
+
+  <!-- Load external library scripts BEFORE main script -->
+  <script src="SpeakHello.js"></script>
+  <script src="SpeakGoodBye.js"></script>
+  <script src="script.js"></script>
+
+  <!-- Visual output injector (renders on-page in addition to console) -->
+  <script>
+    (function () {
+      var names = [
+        "Yaakov","John","Jen","Jason","Paul",
+        "Frank","Larry","Paula","Jackie","Duke"
+      ];
+      var output = document.getElementById('output');
+
+      names.forEach(function (name, idx) {
+        var isJ = name.charAt(0).toLowerCase() === 'j';
+        var line = document.createElement('div');
+        line.className = 'log-line ' + (isJ ? 'goodbye' : 'hello');
+        line.style.animationDelay = (idx * 80) + 'ms';
+        line.innerHTML =
+          '<span class="prompt">&gt;</span>' +
+          '<span class="message">' + (isJ ? 'Goodbye ' : 'Hello ') + name + '</span>';
+        output.appendChild(line);
+      });
+    })();
+  </script>
+
+</body>
+</html>
